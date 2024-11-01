@@ -1,6 +1,5 @@
 # Bug in the Machine
 
-![Bug in the Machine Banner](banner.png)
 
 ## Table of Contents
 
