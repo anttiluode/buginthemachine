@@ -147,6 +147,8 @@ Growth Rate: Probability of adding a new node at each interval (growth_rate).
 Minimum Nodes: The lower bound on the number of nodes in the network.
 Maximum Nodes: The upper bound on the number of nodes in the network.
 Webcam Selection: Choose from available webcams connected to your system.
+(Usually 0 but like in my case 2) 
+
 Save Configuration:
 
 Use the Save Configuration button to export current settings and network state to a JSON file.
