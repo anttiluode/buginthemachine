@@ -1,6 +1,6 @@
 # Bug in the Machine
 
-Video: https://youtu.be/XkZkRxGoxLo 
+Video: [https://youtu.be/XkZkRxGoxLo](https://youtu.be/S1u6Ra9Qwsw) 
 
 Deepdive: 
 
