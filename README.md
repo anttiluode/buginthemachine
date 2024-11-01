@@ -1,5 +1,6 @@
 # Bug in the Machine
 
+Video: https://youtu.be/XkZkRxGoxLo 
 
 ## Table of Contents
 
