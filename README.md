@@ -111,15 +111,17 @@ git clone https://github.com/anttiluode/buginthemachine.git
 
 cd buginthemachine
 
-Create a Virtual Environment (Optional but Recommended)
+# Create a Virtual Environment (Optional but Recommended)
 
 python -m venv venv
 
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
+# install requirements file 
+
 pip install -r requirements.txt
 
-pip install numpy opencv-python pillow matplotlib
+# Then Run the app
 
 python app.py
 ```
