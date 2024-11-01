@@ -2,6 +2,10 @@
 
 Video: https://youtu.be/XkZkRxGoxLo 
 
+Deepdive: 
+
+https://youtu.be/ETE8vubr3B8
+
 ## Table of Contents
 
 - [Overview](#overview)
