@@ -203,31 +203,13 @@ Error Messages:
 Check the console or log output for detailed error messages.
 Common issues include file I/O errors during saving/loading and webcam access failures.
 Contributing
-Contributions are welcome! Whether you're fixing bugs, improving documentation, or suggesting new features, your input is valuable.
-
-Fork the Repository
-
-Create a Feature Branch
-
-bash
-Copy code
-git checkout -b feature/YourFeature
-Commit Your Changes
-
-bash
-Copy code
-git commit -m "Add your feature"
-Push to the Branch
-
-bash
-Copy code
-git push origin feature/YourFeature
-Open a Pull Request
+Contributions are welcome! Whether you're fixing bugs :), improving documentation, or suggesting new features, your input is valuable.
 
 License
 This project is licensed under the MIT License.
 
 Acknowledgements
+
 OpenCV: For providing powerful computer vision tools.
 Tkinter Community: For maintaining the standard GUI library in Python.
 NumPy and Matplotlib: For their indispensable roles in numerical computations and data visualization.
