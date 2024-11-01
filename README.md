@@ -103,34 +103,27 @@ The application offers a user-friendly graphical interface (GUI) built with Tkin
 - **Python 3.7 or higher**
 - **Webcam:** Ensure that a functional webcam is connected to your system.
 
-### Clone the Repository
+### INSTALL AND RUN 
 
 ```bash
+
 git clone https://github.com/anttiluode/buginthemachine.git
-cd bug-in-the-machine
+
+cd buginthemachine
+
 Create a Virtual Environment (Optional but Recommended)
-bash
-Copy code
+
 python -m venv venv
+
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install Dependencies
-bash
-Copy code
+
 pip install -r requirements.txt
-Note: If requirements.txt is not provided, you can install the necessary libraries individually:
 
-bash
-Copy code
 pip install numpy opencv-python pillow matplotlib
-Tkinter is included with standard Python installations. If it's missing, refer to your operating system's installation guidelines.
 
-Usage
-Starting the Application
-Run the Application:
+python app.py
+```
 
-bash
-Copy code
-python bug_in_the_machine.py
 Main Window:
 
 Start Button: Initiates the adaptive system, starting video capture and network processing.
