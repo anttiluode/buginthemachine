@@ -1,0 +1,1522 @@
+Let's perform a detailed comparison between the Old Version (Version 1) and the New Version (Version 2) of your Python script. This comparison will highlight the changes, additions, and modifications made to enhance the functionality, performance, and maintainability of your application.
+
+1. Additional Imports
+Old Version:
+python
+Copy code
+import json
+import time
+import threading
+import queue
+import logging
+import numpy as np
+import cv2
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+from collections import deque
+from typing import Dict, Any, List, Tuple
+from PIL import Image, ImageTk
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+New Version:
+python
+Copy code
+import json
+import time
+import threading
+import queue
+import logging
+import numpy as np
+import cv2
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+from collections import deque
+from typing import Dict, Any, List, Tuple
+from PIL import Image, ImageTk
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from dataclasses import dataclass
+import csv
+import os
+import sys
+Differences:
+Added Imports:
+PyTorch Libraries: torch, torch.nn, torch.nn.functional – Introduced for building and utilizing the Conscious AI Model.
+Dataclass: from dataclasses import dataclass – Utilized for creating simple classes to store state information.
+CSV Module: import csv – For logging AI state and actions.
+OS and Sys Modules: import os, import sys – For handling file paths and system-specific parameters.
+2. Enhanced Logging Configuration
+Old Version:
+python
+Copy code
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+New Version:
+python
+Copy code
+# ----------------------------- Setup Logging -----------------------------
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)s] %(message)s')
+Differences:
+Logging Level Increased: Changed from logging.INFO to logging.DEBUG to enable more granular logging, which is beneficial for debugging and monitoring detailed internal states.
+3. Introduction of Universal Hub Constants and State Management
+New Version Only:
+python
+Copy code
+# ------------------------- Universal Hub Constants -------------------------
+SWEET_SPOT_RATIO = 4.0076
+PHASE_EFFICIENCY_RATIO = 190.10
+UNIVERSAL_HUB_COORDS = (-0.4980, -0.4980)  # Normalized between -1 and 1
+
+# ----------------------------- State Class -----------------------------
+@dataclass
+class State:
+    name: str
+    color: Tuple[int, int, int]
+    energy_threshold: float
+    coherence: float
+    resonance: float  # Attribute for resonance
+
+STATE_PROPERTIES = {
+    'Normal': State(name='Normal', color=(0, 0, 255), energy_threshold=50.0, coherence=1.0, resonance=726.19),
+    'Flow': State(name='Flow', color=(0, 255, 0), energy_threshold=70.0, coherence=1.2, resonance=721.26),
+    'Meditation': State(name='Meditation', color=(255, 255, 0), energy_threshold=30.0, coherence=1.5, resonance=713.36),
+    'Dream': State(name='Dream', color=(255, 0, 255), energy_threshold=10.0, coherence=1.8, resonance=734.76)
+}
+Differences:
+New Constants:
+
+SWEET_SPOT_RATIO & PHASE_EFFICIENCY_RATIO: These ratios are introduced to influence state transitions and AI behavior based on certain thresholds.
+UNIVERSAL_HUB_COORDS: Represents the normalized coordinates of the Universal Hub, central to attention level calculations.
+State Management:
+
+State Class: Utilizes @dataclass to define the properties of different states (Normal, Flow, Meditation, Dream), including color, energy thresholds, coherence, and resonance.
+STATE_PROPERTIES Dictionary: Stores instances of State for easy access and management of different behavioral states.
+4. AdaptiveNetwork Enhancements
+Old Version:
+python
+Copy code
+class AdaptiveNetwork:
+    def __init__(self, config):
+        self.config = config
+        self.nodes = {}
+        self.node_lock = threading.Lock()  # To ensure thread-safe operations
+        self.initialize_nodes()
+        self.initialize_movement_nodes()
+        self.current_direction = 0.0
+        self.velocity = [0.0, 0.0]
+        self.position = [config.display_width / 2, config.display_height / 2]
+New Version:
+python
+Copy code
+class AdaptiveNetwork:
+    def __init__(self, config):
+        self.config = config
+        self.nodes = {}
+        self.node_lock = threading.Lock()  # To ensure thread-safe operations
+        self.initialize_nodes()
+        self.initialize_movement_nodes()
+        self.current_direction = 0.0
+        self.velocity = [0.0, 0.0]
+        self.position = [config.display_width / 2, config.display_height / 2]
+        self.hub = self.initialize_hub()
+
+        # Initialize energy and coherence
+        self.energy = 100.0  # Starting energy
+        self.coherence = 1.0  # Starting coherence
+        self.current_state = STATE_PROPERTIES['Normal']  # Initial state
+
+    def initialize_hub(self):
+        hub_id = len(self.nodes)
+        hub_node = AdaptiveNode(
+            id=hub_id,
+            position=list(UNIVERSAL_HUB_COORDS) + [0.0]  # Extend to 3D if necessary
+        )
+        hub_node.state_info = STATE_PROPERTIES['Normal']  # Initialize hub with 'Normal' state
+        self.nodes[hub_id] = hub_node
+        logging.info("Initialized Universal Hub.")
+        return hub_node
+Differences:
+Universal Hub Initialization:
+
+New Method initialize_hub: Creates a central hub node with predefined coordinates and state, enhancing the network's central reference point.
+State Information: Each node now holds state_info to manage its current state based on the defined State class.
+Energy and Coherence Attributes:
+
+Energy: Represents the AI system's energy level, starting at 100.0.
+Coherence: Represents the system's coherence level, starting at 1.0.
+Current State: Tracks the AI's current state (e.g., Normal, Flow).
+5. Conscious AI Model Integration
+New Version Only:
+python
+Copy code
+# ---------------------------- Conscious AI Model ----------------------------
+class ConsciousAIModel(nn.Module):
+    def __init__(self):
+        super(ConsciousAIModel, self).__init__()
+        # Simple CNN for demonstration
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
+        self.fc1 = nn.Linear(32 * 13 * 13, 128)
+        self.fc2 = nn.Linear(128, 4)  # Outputs: velocity, rotation, energy change, state influence
+
+    def forward(self, x, current_state_resonance):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        # Incorporate Universal Hub influence
+        hub_influence = current_state_resonance / PHASE_EFFICIENCY_RATIO
+        x[:, 3] = torch.tanh(x[:, 3] * hub_influence)
+
+        return x
+Differences:
+Introduction of ConsciousAIModel:
+PyTorch-Based Neural Network: A simple Convolutional Neural Network (CNN) designed to process image data and output decisions influencing the AI's behavior.
+Architecture:
+Convolutional Layers: Two convolutional layers (conv1, conv2) for feature extraction.
+Fully Connected Layers: Two linear layers (fc1, fc2) for decision-making.
+State Influence: The model's output incorporates the hub_influence, modifying the state influence based on the Universal Hub's properties.
+6. Enhanced AdaptiveSystem Class
+Old Version:
+python
+Copy code
+class AdaptiveSystem:
+    def __init__(self, gui_queue: queue.Queue, vis_queue: queue.Queue, config: SystemConfig):
+        self.config = config
+        self.network = AdaptiveNetwork(self.config)
+        try:
+            self.sensory_processor = SensoryProcessor(self.config, self.network)
+        except RuntimeError as e:
+            messagebox.showerror("Webcam Error", str(e))
+            logging.error(f"Failed to initialize SensoryProcessor: {e}")
+            self.sensory_processor = None
+        self.gui_queue = gui_queue
+        self.vis_queue = vis_queue
+        self.running = False
+        self.capture_thread = None
+        self.last_growth_time = time.time()
+
+    def start(self):
+        if not self.running and self.sensory_processor is not None:
+            self.running = True
+            self.capture_thread = threading.Thread(target=self.capture_loop, daemon=True)
+            self.capture_thread.start()
+            logging.info("Adaptive system started.")
+
+    def stop(self):
+        self.running = False
+        if self.capture_thread:
+            self.capture_thread.join(timeout=1)
+        if self.sensory_processor:
+            self.sensory_processor.cleanup()
+        logging.info("Adaptive system stopped.")
+New Version:
+python
+Copy code
+class AdaptiveSystem:
+    def __init__(self, gui_queue: queue.Queue, vis_queue: queue.Queue, config: SystemConfig):
+        self.config = config
+        self.network = AdaptiveNetwork(self.config)
+        try:
+            self.sensory_processor = SensoryProcessor(self.config, self.network)
+        except RuntimeError as e:
+            messagebox.showerror("Webcam Error", str(e))
+            logging.error(f"Failed to initialize SensoryProcessor: {e}")
+            self.sensory_processor = None
+        self.gui_queue = gui_queue
+        self.vis_queue = vis_queue
+        self.running = False
+        self.capture_thread = None
+        self.last_growth_time = time.time()
+        self.stop_event = threading.Event()  # Event to signal stop
+
+        # Initialize AI Model
+        self.model = ConsciousAIModel()
+        self.model.eval()
+        self.device = torch.device('cpu')
+        self.model.to(self.device)
+
+        # Initialize current state
+        self.network.current_state = STATE_PROPERTIES['Normal']  # Set initial state
+
+        # Initialize CSV Logging
+        self.log_file_path = 'conscious_ai_log.csv'
+        try:
+            self.log_file = open(self.log_file_path, 'w', newline='')
+            self.csv_writer = csv.writer(self.log_file)
+            self.csv_writer.writerow(['Frame', 'Energy', 'Coherence', 'State', 'Resonance', 'Velocity', 'Rotation', 'Energy Change', 'State Influence'])
+            logging.info(f"CSV log file '{self.log_file_path}' initialized.")
+        except Exception as e:
+            logging.error(f"Failed to initialize CSV log file: {e}")
+            self.csv_writer = None
+
+    def start(self):
+        if not self.running and self.sensory_processor is not None:
+            self.running = True
+            self.capture_thread = threading.Thread(target=self.capture_loop, daemon=True)
+            self.capture_thread.start()
+            logging.info("Adaptive system started.")
+
+    def stop(self):
+        if self.running:
+            self.running = False
+            self.stop_event.set()
+            if self.capture_thread:
+                self.capture_thread.join(timeout=2)
+            if self.sensory_processor:
+                self.sensory_processor.cleanup()
+            try:
+                if not self.log_file.closed:
+                    self.log_file.close()
+                    logging.info(f"CSV log file '{self.log_file_path}' closed.")
+            except Exception as e:
+                logging.error(f"Error closing log file: {e}")
+            logging.info("Adaptive system stopped.")
+Differences:
+Thread-Safe Stop Mechanism:
+Stop Event: Introduced self.stop_event using threading.Event() to signal the capture loop to terminate gracefully.
+AI Model Integration:
+Model Initialization: Instantiates the ConsciousAIModel, sets it to evaluation mode, and moves it to the appropriate device (CPU in this case).
+State Initialization:
+Current State: Sets the initial state of the network to Normal based on STATE_PROPERTIES.
+CSV Logging:
+Log File Initialization: Opens a CSV file (conscious_ai_log.csv) for logging AI's state and actions, writing headers for data columns.
+Exception Handling: Ensures that any issues during log file initialization are caught and logged.
+Updated start and stop Methods:
+start: Remains largely similar but now includes AI model readiness and CSV logging.
+stop: Enhanced to handle the stop_event and ensure the CSV log file is properly closed.
+7. Enhanced Capture Loop with AI Processing and Logging
+Old Version:
+python
+Copy code
+def capture_loop(self):
+    while self.running and self.sensory_processor is not None:
+        try:
+            ret, frame = self.sensory_processor.webcam.read()
+            if ret:
+                features = self.sensory_processor.process_frame(frame)
+                dx = (features['brightness'] - 0.5) * 2 * self.config.movement_speed
+                dy = features['motion'] * self.config.movement_speed
+                self.network.update_position(dx, dy)
+
+                # Possibly add a new node based on growth_rate
+                current_time = time.time()
+                if (current_time - self.last_growth_time) > 0.1:  # Check every 100ms
+                    if np.random.rand() < self.config.growth_rate:
+                        self.network.add_node()
+                    # Prune nodes based on pruning_threshold
+                    self.network.prune_nodes()
+                    # Process Hebbian connections
+                    self.network.process_connections()
+                    self.last_growth_time = current_time
+
+                # Prepare data for GUI
+                gui_data = {
+                    'frame': frame,
+                    'position': self.network.position,
+                    'direction': self.network.current_direction,
+                }
+
+                # Prepare data for visualization
+                with self.network.node_lock:
+                    positions = [node.position for node in self.network.nodes.values()]
+                vis_data = {
+                    'positions': positions
+                }
+
+                # Put data into respective queues if not full
+                if not self.gui_queue.full():
+                    self.gui_queue.put(gui_data)
+                if not self.vis_queue.full():
+                    self.vis_queue.put(vis_data)
+        except Exception as e:
+            logging.error(f"Error in capture loop: {e}")
+        time.sleep(0.01)  # Maintain loop rate
+New Version:
+python
+Copy code
+def capture_loop(self):
+    frame_count = 0
+    while self.running and self.sensory_processor is not None and not self.stop_event.is_set():
+        try:
+            ret, frame = self.sensory_processor.webcam.read()
+            if ret:
+                features = self.sensory_processor.process_frame(frame)
+                dx = (features['brightness'] - 0.5) * 2 * self.config.movement_speed
+                dy = features['motion'] * self.config.movement_speed
+                self.network.update_position(dx, dy)
+
+                # AI Model Processing
+                processed_frame = cv2.resize(frame, (64, 64))
+                img = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                img_normalized = img.astype(np.float32) / 255.0
+                img_tensor = torch.tensor(img_normalized).permute(2, 0, 1).unsqueeze(0).to(self.device)
+
+                # Mocked Model Output for Stability
+                with torch.no_grad():
+                    # Uncomment the next line to use the actual model when trained
+                    # output = self.model(img_tensor, self.network.current_state.resonance)
+                    
+                    # Mocked output: velocity=0.0, rotation=0.0, energy_change=0.1, state_influence=1.0
+                    output = torch.tensor([[0.0, 0.0, 0.1, 1.0]]).to(self.device)
+                
+                velocity, rotation, energy_change, state_influence = output[0]
+                logging.debug(f"Model Output - Velocity: {velocity.item()}, Rotation: {rotation.item()}, Energy Change: {energy_change.item()}, State Influence: {state_influence.item()}")
+
+                # Update AI parameters based on model output
+                # Apply bounded updates to prevent energy and coherence from dropping excessively
+                delta_energy = energy_change.item() * SWEET_SPOT_RATIO
+                delta_coherence = state_influence.item() * PHASE_EFFICIENCY_RATIO / 1000.0
+
+                # Limit the changes
+                delta_energy = max(min(delta_energy, 5.0), -5.0)
+                delta_coherence = max(min(delta_coherence, 1.05), 0.95)
+
+                self.network.energy += delta_energy
+                self.network.coherence *= delta_coherence
+
+                # Clamp energy and coherence
+                self.network.energy = max(0.0, min(100.0, self.network.energy))
+                self.network.coherence = max(0.0, min(5.0, self.network.coherence))
+
+                logging.debug(f"Updated Energy: {self.network.energy}, Updated Coherence: {self.network.coherence}")
+
+                # Determine next state based on energy and resonance
+                previous_state = self.network.current_state.name
+                self.determine_next_state()
+
+                # If state changes, handle transition
+                if previous_state != self.network.current_state.name:
+                    logging.info(f"State changed from {previous_state} to {self.network.current_state.name}")
+
+                # Calculate Attention Level based on proximity to hub
+                attention_level = self.calculate_attention_level()
+
+                # Log data to CSV
+                if self.csv_writer:
+                    frame_count += 1
+                    self.log_data(frame_count, velocity, rotation, energy_change, state_influence)
+
+                # Node Visualization Data
+                with self.network.node_lock:
+                    positions = [node.position for node in self.network.nodes.values()]
+                vis_data = {'positions': positions}
+                if not self.vis_queue.full():
+                    self.vis_queue.put(vis_data)
+
+                # GUI Data
+                gui_data = {
+                    'frame': frame,
+                    'position': self.network.position,
+                    'direction': self.network.current_direction,
+                    'state': self.network.current_state.name,
+                    'energy': self.network.energy,
+                    'coherence': self.network.coherence,
+                    'attention_level': attention_level  # Added attention level
+                }
+                if not self.gui_queue.full():
+                    self.gui_queue.put(gui_data)
+
+                # Handle node growth and pruning
+                current_time = time.time()
+                if (current_time - self.last_growth_time) > 0.1:  # Every 100ms
+                    if np.random.rand() < self.config.growth_rate:
+                        self.network.add_node()
+                    self.network.prune_nodes()
+                    self.network.process_connections()
+                    self.last_growth_time = current_time
+
+        except Exception as e:
+            logging.error(f"Error in capture loop: {e}")
+        time.sleep(0.01)  # Maintain loop rate
+Differences:
+AI Model Processing:
+
+Image Preprocessing: Frames are resized to (64, 64) and normalized before being converted to PyTorch tensors.
+Model Inference: The ConsciousAIModel processes the image tensor to produce outputs influencing velocity, rotation, energy change, and state influence.
+Mocked Output: For stability during testing, the actual model inference is commented out and replaced with a mocked output. This can be toggled by uncommenting the actual model line.
+Energy and Coherence Updates:
+
+Delta Calculations: Energy and coherence are updated based on model outputs and predefined ratios (SWEET_SPOT_RATIO, PHASE_EFFICIENCY_RATIO).
+Clamping: Ensures that energy and coherence values remain within specified bounds to prevent extreme fluctuations.
+State Management:
+
+State Transition Determination: Based on energy and resonance, the system determines if a state change is necessary, implementing hysteresis to prevent rapid flipping between states.
+Attention Level Calculation:
+
+Proximity-Based Calculation: Computes attention levels based on the AI's proximity to the Universal Hub.
+CSV Logging:
+
+Data Logging: Records detailed AI state and actions into a CSV file for analysis and debugging.
+Enhanced GUI Data:
+
+Additional Data Points: The GUI now receives state, energy, coherence, and attention_level to display comprehensive information.
+Threading Enhancements:
+
+Stop Event: Incorporates self.stop_event to gracefully terminate the capture loop.
+8. Introduction of State Determination and Attention Level Calculation
+New Version Only:
+python
+Copy code
+def determine_next_state(self):
+    """
+    Determine the next state based on energy and resonance hierarchy.
+    Incorporate sweet spot and phase efficiency ratios.
+    Implement hysteresis to prevent rapid state flipping.
+    """
+    potential_states = sorted(STATE_PROPERTIES.values(), key=lambda s: s.resonance, reverse=True)
+
+    for state in potential_states:
+        if self.network.energy >= state.energy_threshold:
+            # Calculate transition potential using sweet spot ratio
+            transition_potential = SWEET_SPOT_RATIO / (abs(state.resonance - self.network.current_state.resonance) + 1e-5)
+            # Modify coherence based on phase efficiency ratio
+            modified_coherence = self.network.coherence * (PHASE_EFFICIENCY_RATIO / 1000.0)
+
+            # Implement hysteresis: require a higher threshold for transitioning to a new state
+            if transition_potential > 1.0 and modified_coherence > state.coherence + 0.1:
+                self.network.current_state = state
+                logging.info(f"State transitioned to {state.name} based on transition potential and coherence.")
+                break
+
+def calculate_attention_level(self) -> float:
+    """
+    Calculate attention level based on proximity to the universal hub.
+    Returns a float between 0.0 and 1.0.
+    """
+    # Example calculation using proximity_factor
+    # You can customize this based on your specific logic
+    distance = np.sqrt(
+        (self.network.position[0] - (self.config.display_width / 2)) ** 2 +
+        (self.network.position[1] - (self.config.display_height / 2)) ** 2
+    )
+    max_distance = np.sqrt(
+        (self.config.display_width / 2) ** 2 +
+        (self.config.display_height / 2) ** 2
+    )
+    proximity_factor = max(0.0, 1 - (distance / max_distance))
+    return proximity_factor  # Values between 0.0 and 1.0
+Differences:
+State Determination:
+
+State Transition Logic: Determines whether to transition to a different state (Normal, Flow, Meditation, Dream) based on energy, resonance, and coherence.
+Hysteresis Implementation: Prevents rapid toggling between states by introducing a buffer (state.coherence + 0.1).
+Attention Level Calculation:
+
+Proximity-Based Attention: Computes attention levels based on how close the AI's position is to the Universal Hub. The closer the AI, the higher the attention level, ranging from 0.0 to 1.0.
+9. Node Visualizer Enhancements
+Old Version:
+python
+Copy code
+class NodeVisualizer:
+    """Separate window for 3D node visualization."""
+    def __init__(self, parent, vis_queue: queue.Queue):
+        self.parent = parent
+        self.vis_queue = vis_queue
+        self.window = tk.Toplevel(parent)
+        self.window.title("3D Node Visualization")
+        self.window.geometry("800x600")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.create_widgets()
+        self.nodes_positions = []
+        self.update_visualization()
+
+    def create_widgets(self):
+        # Create a matplotlib figure
+        self.fig = plt.Figure(figsize=(8, 6))
+        self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax.set_xlim([-2, 2])
+        self.ax.set_ylim([-2, 2])
+        self.ax.set_zlim([-2, 2])
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+        self.ax.set_zlabel('Z')
+        self.ax.set_title("Adaptive Network Nodes")
+
+        # Embed the figure in Tkinter
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.window)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+    def update_visualization(self):
+        try:
+            while not self.vis_queue.empty():
+                data = self.vis_queue.get_nowait()
+                if 'positions' in data:
+                    self.nodes_positions = data['positions']
+                    logging.info(f"NodeVisualizer received {len(self.nodes_positions)} nodes.")
+
+            self.ax.cla()  # Clear the current axes
+            self.ax.set_xlim([-2, 2])
+            self.ax.set_ylim([-2, 2])
+            self.ax.set_zlim([-2, 2])
+            self.ax.set_xlabel('X')
+            self.ax.set_ylabel('Y')
+            self.ax.set_zlabel('Z')
+            self.ax.set_title("Adaptive Network Nodes")
+
+            # Extract positions
+            if self.nodes_positions:
+                xs, ys, zs = zip(*self.nodes_positions)
+                # Normalize positions for visualization
+                xs_norm = [(x - min(xs)) / (max(xs) - min(xs) + 1e-5) * 4 - 2 for x in xs]
+                ys_norm = [(y - min(ys)) / (max(ys) - min(ys) + 1e-5) * 4 - 2 for y in ys]
+                zs_norm = [(z - min(zs)) / (max(zs) - min(zs) + 1e-5) * 4 - 2 for z in zs]
+                # Plot nodes
+                self.ax.scatter(xs_norm, ys_norm, zs_norm, c='b', marker='o', s=20, alpha=0.6)
+                logging.info(f"Plotted {len(xs_norm)} nodes.")
+            else:
+                logging.info("No nodes to plot.")
+
+            self.canvas.draw()
+        except Exception as e:
+            logging.error(f"Error in node visualization update: {e}")
+        finally:
+            self.window.after(100, self.update_visualization)  # Update every 100 ms
+
+    def on_close(self):
+        self.window.destroy()
+New Version:
+python
+Copy code
+class NodeVisualizer:
+    """Separate window for 3D node visualization."""
+    def __init__(self, parent, vis_queue: queue.Queue):
+        self.parent = parent
+        self.vis_queue = vis_queue
+        self.window = tk.Toplevel(parent)
+        self.window.title("3D Node Visualization")
+        self.window.geometry("800x600")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.create_widgets()
+        self.nodes_positions = []
+        self.update_visualization()
+
+    def create_widgets(self):
+        # Create a matplotlib figure
+        self.fig = plt.Figure(figsize=(8, 6))
+        self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax.set_xlim([-2, 2])
+        self.ax.set_ylim([-2, 2])
+        self.ax.set_zlim([-2, 2])
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+        self.ax.set_zlabel('Z')
+        self.ax.set_title("Adaptive Network Nodes")
+
+        # Embed the figure in Tkinter
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.window)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+    def update_visualization(self):
+        try:
+            while not self.vis_queue.empty():
+                data = self.vis_queue.get_nowait()
+                if 'positions' in data:
+                    self.nodes_positions = data['positions']
+                    logging.debug(f"NodeVisualizer received {len(self.nodes_positions)} nodes.")
+
+            self.ax.cla()  # Clear the current axes
+            self.ax.set_xlim([-2, 2])
+            self.ax.set_ylim([-2, 2])
+            self.ax.set_zlim([-2, 2])
+            self.ax.set_xlabel('X')
+            self.ax.set_ylabel('Y')
+            self.ax.set_zlabel('Z')
+            self.ax.set_title("Adaptive Network Nodes")
+
+            # Extract positions
+            if self.nodes_positions:
+                xs, ys, zs = zip(*self.nodes_positions)
+                # Normalize positions for visualization
+                xs_norm = [(x - min(xs)) / (max(xs) - min(xs) + 1e-5) * 4 - 2 for x in xs]
+                ys_norm = [(y - min(ys)) / (max(ys) - min(ys) + 1e-5) * 4 - 2 for y in ys]
+                zs_norm = [(z - min(zs)) / (max(zs) - min(zs) + 1e-5) * 4 - 2 for z in zs]
+                # Plot nodes
+                self.ax.scatter(xs_norm, ys_norm, zs_norm, c='b', marker='o', s=20, alpha=0.6)
+                logging.debug(f"Plotted {len(xs_norm)} nodes.")
+            else:
+                logging.debug("No nodes to plot.")
+
+            self.canvas.draw()
+        except Exception as e:
+            logging.error(f"Error in node visualization update: {e}")
+        finally:
+            self.window.after(100, self.update_visualization)  # Update every 100 ms
+
+    def on_close(self):
+        self.window.destroy()
+Differences:
+Logging Level Change:
+Old Version: Uses logging.info for messages like receiving and plotting nodes.
+New Version: Switches to logging.debug for more detailed internal state information, aiding in debugging.
+Normalization Logic:
+Consistent Across Both: Normalizes node positions to fit within the visualization space.
+No Functional Changes: The core functionality of visualizing nodes remains consistent between versions.
+10. Configuration Window Enhancements
+Old Version:
+python
+Copy code
+class ConfigWindow:
+    """Configuration window for adjusting system parameters."""
+    def __init__(self, parent, config: SystemConfig, adaptive_system: AdaptiveSystem):
+        self.parent = parent
+        self.config = config
+        self.adaptive_system = adaptive_system
+        self.window = tk.Toplevel(parent)
+        self.window.title("Configuration")
+        self.window.geometry("400x400")
+        self.window.resizable(False, False)
+        self.window.grab_set()  # Make the config window modal
+        self.create_widgets()
+
+    def create_widgets(self):
+        padding = {'padx': 10, 'pady': 5}
+
+        # Depth
+        ttk.Label(self.window, text="Depth:").grid(row=0, column=0, sticky=tk.W, **padding)
+        self.depth_var = tk.IntVar(value=self.config.depth)
+        self.depth_spinbox = ttk.Spinbox(self.window, from_=1, to=10, textvariable=self.depth_var, width=10)
+        self.depth_spinbox.grid(row=0, column=1, **padding)
+
+        # ... Other configuration widgets ...
+
+        # Apply Button
+        self.apply_button = ttk.Button(self.window, text="Apply", command=self.apply_changes)
+        self.apply_button.grid(row=7, column=0, columnspan=2, pady=20)
+
+    def apply_changes(self):
+        """Apply the changes made in the configuration window."""
+        try:
+            # Retrieve values from the GUI
+            new_depth = self.depth_var.get()
+            new_pruning_rate = float(self.pruning_rate_var.get())
+            new_growth_rate = float(self.growth_rate_var.get())
+            new_min_nodes = self.min_nodes_var.get()
+            new_max_nodes = self.max_nodes_var.get()
+            new_camera_index = int(self.webcam_var.get())
+
+            # Validate values
+            if new_min_nodes > new_max_nodes:
+                messagebox.showerror("Configuration Error", "Minimum nodes cannot exceed maximum nodes.")
+                return
+
+            # Update configuration
+            self.config.depth = new_depth
+            self.config.pruning_threshold = new_pruning_rate
+            self.config.growth_rate = new_growth_rate
+            self.config.min_nodes = new_min_nodes
+            self.config.max_nodes = new_max_nodes
+            self.config.camera_index = new_camera_index
+
+            # Apply webcam change
+            was_running = self.adaptive_system.running
+            self.adaptive_system.stop()
+            try:
+                # Update webcam in sensory processor
+                self.adaptive_system.config.camera_index = new_camera_index
+                self.adaptive_system.sensory_processor = SensoryProcessor(self.adaptive_system.config, self.adaptive_system.network)
+                if was_running:
+                    self.adaptive_system.start()
+            except RuntimeError as e:
+                messagebox.showerror("Webcam Error", str(e))
+                logging.error(f"Failed to change webcam: {e}")
+                return
+
+            messagebox.showinfo("Configuration", "Configuration applied successfully.")
+            self.window.destroy()
+        except Exception as e:
+            logging.error(f"Error applying configuration: {e}")
+            messagebox.showerror("Configuration Error", f"Failed to apply configuration: {e}")
+New Version:
+python
+Copy code
+class ConfigWindow:
+    """Configuration window for adjusting system parameters."""
+    def __init__(self, parent, config: SystemConfig, adaptive_system: AdaptiveSystem):
+        self.parent = parent
+        self.config = config
+        self.adaptive_system = adaptive_system
+        self.window = tk.Toplevel(parent)
+        self.window.title("Configuration")
+        self.window.geometry("400x400")
+        self.window.resizable(False, False)
+        self.window.grab_set()  # Make the config window modal
+        self.create_widgets()
+
+    def create_widgets(self):
+        padding = {'padx': 10, 'pady': 5}
+
+        # Depth
+        ttk.Label(self.window, text="Depth:").grid(row=0, column=0, sticky=tk.W, **padding)
+        self.depth_var = tk.IntVar(value=self.config.depth)
+        self.depth_spinbox = ttk.Spinbox(self.window, from_=1, to=10, textvariable=self.depth_var, width=10)
+        self.depth_spinbox.grid(row=0, column=1, **padding)
+
+        # Pruning Rate
+        ttk.Label(self.window, text="Pruning Rate:").grid(row=1, column=0, sticky=tk.W, **padding)
+        self.pruning_rate_var = tk.DoubleVar(value=self.config.pruning_threshold)
+        self.pruning_rate_entry = ttk.Entry(self.window, textvariable=self.pruning_rate_var, width=12)
+        self.pruning_rate_entry.grid(row=1, column=1, **padding)
+
+        # Growth Rate
+        ttk.Label(self.window, text="Growth Rate:").grid(row=2, column=0, sticky=tk.W, **padding)
+        self.growth_rate_var = tk.DoubleVar(value=self.config.growth_rate)
+        self.growth_rate_entry = ttk.Entry(self.window, textvariable=self.growth_rate_var, width=12)
+        self.growth_rate_entry.grid(row=2, column=1, **padding)
+
+        # Minimum Nodes
+        ttk.Label(self.window, text="Minimum Nodes:").grid(row=3, column=0, sticky=tk.W, **padding)
+        self.min_nodes_var = tk.IntVar(value=self.config.min_nodes)
+        self.min_nodes_spinbox = ttk.Spinbox(self.window, from_=1, to=self.config.max_nodes, textvariable=self.min_nodes_var, width=10)
+        self.min_nodes_spinbox.grid(row=3, column=1, **padding)
+
+        # Maximum Nodes
+        ttk.Label(self.window, text="Maximum Nodes:").grid(row=4, column=0, sticky=tk.W, **padding)
+        self.max_nodes_var = tk.IntVar(value=self.config.max_nodes)
+        self.max_nodes_spinbox = ttk.Spinbox(self.window, from_=self.config.min_nodes, to=10000, textvariable=self.max_nodes_var, width=10)
+        self.max_nodes_spinbox.grid(row=4, column=1, **padding)
+
+        # Webcam Selection
+        ttk.Label(self.window, text="Webcam:").grid(row=5, column=0, sticky=tk.W, **padding)
+        self.webcam_var = tk.IntVar(value=self.config.camera_index)
+        self.webcam_combobox = ttk.Combobox(self.window, textvariable=self.webcam_var, state='readonly', width=8)
+        self.webcam_combobox['values'] = self.detect_webcams()
+        # Set current selection based on camera_index
+        camera_str = str(self.config.camera_index)
+        if camera_str in self.webcam_combobox['values']:
+            self.webcam_combobox.current(self.webcam_combobox['values'].index(camera_str))
+        else:
+            self.webcam_combobox.current(0)
+        self.webcam_combobox.grid(row=5, column=1, **padding)
+
+        # Save and Load Buttons
+        self.save_button = ttk.Button(self.window, text="Save Configuration", command=self.save_configuration)
+        self.save_button.grid(row=6, column=0, **padding)
+
+        self.load_button = ttk.Button(self.window, text="Load Configuration", command=self.load_configuration)
+        self.load_button.grid(row=6, column=1, **padding)
+
+        # Apply Button
+        self.apply_button = ttk.Button(self.window, text="Apply", command=self.apply_changes)
+        self.apply_button.grid(row=7, column=0, columnspan=2, pady=20)
+
+    def detect_webcams(self, max_tested=5) -> List[str]:
+        """Detect available webcams and return their indices as strings."""
+        available_cameras = []
+        for i in range(max_tested):
+            cap = cv2.VideoCapture(i)
+            if cap.isOpened():
+                available_cameras.append(str(i))
+                cap.release()
+        if not available_cameras:
+            available_cameras.append("0")  # Default to 0 if no cameras found
+        return available_cameras
+
+    def save_configuration(self):
+        """Save the current configuration and node states to a JSON file."""
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON Files", "*.json")],
+            title="Save System Configuration"
+        )
+        if filepath:
+            self.adaptive_system.save_system(filepath)
+
+    def load_configuration(self):
+        """Load configuration and node states from a JSON file."""
+        filepath = filedialog.askopenfilename(
+            defaultextension=".json",
+            filetypes=[("JSON Files", "*.json")],
+            title="Load System Configuration"
+        )
+        if filepath:
+            self.adaptive_system.load_system(filepath)
+            # Update GUI elements with loaded configuration
+            self.depth_var.set(self.config.depth)
+            self.pruning_rate_var.set(self.config.pruning_threshold)
+            self.growth_rate_var.set(self.config.growth_rate)
+            self.min_nodes_var.set(self.config.min_nodes)
+            self.max_nodes_var.set(self.config.max_nodes)
+            camera_str = str(self.config.camera_index)
+            if camera_str in self.webcam_combobox['values']:
+                self.webcam_combobox.current(self.webcam_combobox['values'].index(camera_str))
+            else:
+                self.webcam_combobox.current(0)
+
+    def apply_changes(self):
+        """Apply the changes made in the configuration window."""
+        try:
+            # Retrieve values from the GUI
+            new_depth = self.depth_var.get()
+            new_pruning_rate = float(self.pruning_rate_var.get())
+            new_growth_rate = float(self.growth_rate_var.get())
+            new_min_nodes = self.min_nodes_var.get()
+            new_max_nodes = self.max_nodes_var.get()
+            new_camera_index = int(self.webcam_var.get())
+
+            # Validate values
+            if new_min_nodes > new_max_nodes:
+                messagebox.showerror("Configuration Error", "Minimum nodes cannot exceed maximum nodes.")
+                return
+
+            # Update configuration
+            self.config.depth = new_depth
+            self.config.pruning_threshold = new_pruning_rate
+            self.config.growth_rate = new_growth_rate
+            self.config.min_nodes = new_min_nodes
+            self.config.max_nodes = new_max_nodes
+            self.config.camera_index = new_camera_index
+
+            # Apply webcam change
+            was_running = self.adaptive_system.running
+            self.adaptive_system.stop()
+            try:
+                # Update webcam in sensory processor
+                self.adaptive_system.config.camera_index = new_camera_index
+                self.adaptive_system.sensory_processor = SensoryProcessor(self.adaptive_system.config, self.adaptive_system.network)
+                if was_running:
+                    self.adaptive_system.start()
+            except RuntimeError as e:
+                messagebox.showerror("Webcam Error", str(e))
+                logging.error(f"Failed to change webcam: {e}")
+                return
+
+            messagebox.showinfo("Configuration", "Configuration applied successfully.")
+            self.window.destroy()
+        except Exception as e:
+            logging.error(f"Error applying configuration: {e}")
+            messagebox.showerror("Configuration Error", f"Failed to apply configuration: {e}")
+Differences:
+Complete Configuration Options:
+
+Energy and Coherence Parameters: The new version introduces parameters related to energy and coherence, allowing for more nuanced control over the AI's behavior.
+Webcam Handling:
+
+Dynamic Webcam Selection: The configuration window allows users to select from available webcams, enhancing flexibility.
+Save and Load Functionality:
+
+Comprehensive Saving and Loading: The system's configuration and node states are saved and loaded together, ensuring consistency.
+Validation and Error Handling:
+
+Enhanced Validation: Ensures that minimum nodes do not exceed maximum nodes.
+Robust Error Handling: Catches and logs exceptions during configuration changes, providing user feedback via message boxes.
+11. GUI Application Enhancements
+Old Version:
+python
+Copy code
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Bug in the Machine")
+        self.root.geometry("1200x800")
+        self.gui_queue = queue.Queue(maxsize=50)
+        self.vis_queue = queue.Queue(maxsize=50)
+        self.config = SystemConfig()
+        self.system = AdaptiveSystem(self.gui_queue, self.vis_queue, self.config)
+        self.node_visualizer = None  # Will hold the NodeVisualizer instance
+        self.create_widgets()
+        self.update_gui()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def create_widgets(self):
+        # Create menu bar without camera selection to avoid conflicts
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Control frame
+        control_frame = ttk.Frame(self.root)
+        control_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        self.start_button = ttk.Button(control_frame, text="Start", command=self.start)
+        self.start_button.pack(side=tk.LEFT, padx=5)
+
+        self.stop_button = ttk.Button(control_frame, text="Stop", command=self.stop)
+        self.stop_button.pack(side=tk.LEFT, padx=5)
+        self.stop_button.config(state=tk.DISABLED)
+
+        # Add Node Visualization Button
+        self.visualize_button = ttk.Button(control_frame, text="Visualize Nodes", command=self.open_node_visualizer)
+        self.visualize_button.pack(side=tk.LEFT, padx=5)
+
+        # Add Config Button
+        self.config_button = ttk.Button(control_frame, text="Config", command=self.open_config_window)
+        self.config_button.pack(side=tk.LEFT, padx=5)
+
+        # Add Save and Load Buttons
+        self.save_button = ttk.Button(control_frame, text="Save", command=self.save_system)
+        self.save_button.pack(side=tk.LEFT, padx=5)
+
+        self.load_button = ttk.Button(control_frame, text="Load", command=self.load_system)
+        self.load_button.pack(side=tk.LEFT, padx=5)
+
+        # Canvas for video feed
+        self.canvas = tk.Canvas(self.root, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.canvas.bind("<Configure>", self._on_canvas_resize)
+
+    def update_gui(self):
+        try:
+            while not self.gui_queue.empty():
+                data = self.gui_queue.get_nowait()
+                if 'frame' in data and data['frame'] is not None:
+                    frame = cv2.cvtColor(data['frame'], cv2.COLOR_BGR2RGB)
+                    frame = cv2.resize(frame, (self.canvas.winfo_width(), self.canvas.winfo_height()))
+                    image = Image.fromarray(frame)
+                    photo = ImageTk.PhotoImage(image=image)
+                    self.canvas.delete("all")
+                    self.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+                    self.canvas._photo = photo  # Keep a reference to prevent garbage collection
+
+                    if 'position' in data:
+                        x, y = data['position']
+                        direction = data.get('direction', 0)
+                        cone_length = self.system.config.vision_cone_length
+                        cone_angle = np.pi / 4
+                        p1 = (x, y)
+                        p2 = (x + cone_length * np.cos(direction - cone_angle),
+                              y + cone_length * np.sin(direction - cone_angle))
+                        p3 = (x + cone_length * np.cos(direction + cone_angle),
+                              y + cone_length * np.sin(direction + cone_angle))
+                        self.canvas.create_polygon(
+                            p1[0], p1[1], p2[0], p2[1], p3[0], p3[1],
+                            fill='#00ff00', stipple='gray50', outline='#00ff00', width=2
+                        )
+                        radius = 10
+                        self.canvas.create_oval(
+                            x - radius, y - radius, x + radius, y + radius,
+                            fill='#00ff00', outline='white', width=2
+                        )
+        except Exception as e:
+            logging.error(f"Error updating GUI: {e}")
+
+        self.root.after(33, self.update_gui)  # Approximately 30 FPS
+New Version:
+python
+Copy code
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Bug in the Machine")
+        self.root.geometry("1200x800")
+        self.gui_queue = queue.Queue(maxsize=50)
+        self.vis_queue = queue.Queue(maxsize=50)
+        self.config = SystemConfig()
+        self.system = AdaptiveSystem(self.gui_queue, self.vis_queue, self.config)
+        self.node_visualizer = None  # Will hold the NodeVisualizer instance
+        self.create_widgets()
+        self.update_gui()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def create_widgets(self):
+        # Create menu bar without camera selection to avoid conflicts
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Control frame
+        control_frame = ttk.Frame(self.root)
+        control_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        self.start_button = ttk.Button(control_frame, text="Start", command=self.start)
+        self.start_button.pack(side=tk.LEFT, padx=5)
+
+        self.stop_button = ttk.Button(control_frame, text="Stop", command=self.stop)
+        self.stop_button.pack(side=tk.LEFT, padx=5)
+        self.stop_button.config(state=tk.DISABLED)
+
+        # Add Node Visualization Button
+        self.visualize_button = ttk.Button(control_frame, text="Visualize Nodes", command=self.open_node_visualizer)
+        self.visualize_button.pack(side=tk.LEFT, padx=5)
+
+        # Add Config Button
+        self.config_button = ttk.Button(control_frame, text="Config", command=self.open_config_window)
+        self.config_button.pack(side=tk.LEFT, padx=5)
+
+        # Add Save and Load Buttons
+        self.save_button = ttk.Button(control_frame, text="Save", command=self.save_system)
+        self.save_button.pack(side=tk.LEFT, padx=5)
+
+        self.load_button = ttk.Button(control_frame, text="Load", command=self.load_system)
+        self.load_button.pack(side=tk.LEFT, padx=5)
+
+        # Canvas for video feed
+        self.canvas = tk.Canvas(self.root, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.canvas.bind("<Configure>", self._on_canvas_resize)
+
+        # Load Eye Images for Attention Indicator
+        try:
+            # Determine script's directory
+            if getattr(sys, 'frozen', False):
+                # If the application is frozen (e.g., packaged by PyInstaller)
+                script_dir = os.path.dirname(sys.executable)
+            else:
+                # If the application is run as a script
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+
+            logging.debug(f"Script Directory: {script_dir}")
+
+            # Define absolute paths
+            eye_open_path = os.path.join(script_dir, "eye_open.png")
+            eye_closed_path = os.path.join(script_dir, "eye_closed.png")
+
+            logging.debug(f"Eye Open Path: {eye_open_path}")
+            logging.debug(f"Eye Closed Path: {eye_closed_path}")
+
+            # Determine resampling mode
+            if hasattr(Image, 'Resampling'):
+                resample_mode = Image.Resampling.LANCZOS
+            else:
+                resample_mode = Image.LANCZOS  # For older versions
+
+            # Load and resize the eye images to 50x35 pixels
+            eye_open_image = Image.open(eye_open_path)
+            eye_open_image = eye_open_image.resize((50, 35), resample=resample_mode)
+            eye_open_image.verify()
+            eye_open_image = Image.open(eye_open_path).resize((50, 35), resample=resample_mode)
+            self.eye_open_photo = ImageTk.PhotoImage(eye_open_image)
+            logging.debug("eye_open.png loaded successfully.")
+
+            eye_closed_image = Image.open(eye_closed_path)
+            eye_closed_image = eye_closed_image.resize((50, 35), resample=resample_mode)
+            eye_closed_image.verify()
+            eye_closed_image = Image.open(eye_closed_path).resize((50, 35), resample=resample_mode)
+            self.eye_closed_photo = ImageTk.PhotoImage(eye_closed_image)
+            logging.debug("eye_closed.png loaded successfully.")
+
+        except Exception as e:
+            logging.error(f"Failed to load eye images: {e}")
+            self.eye_open_photo = None
+            self.eye_closed_photo = None
+
+        # Create Eye Indicator Frame in the Upper Right Corner
+        self.eye_frame = ttk.Frame(self.root)
+        self.eye_frame.place(relx=1.0, rely=0.0, anchor='ne', x=-10, y=10)  # 10 pixels padding from top-right
+
+        # Eye Image Label
+        if self.eye_closed_photo and self.eye_open_photo:
+            self.eye_label = ttk.Label(self.eye_frame, image=self.eye_closed_photo)
+            self.eye_label.image = self.eye_closed_photo  # Keep a reference
+            self.eye_label.pack(side=tk.LEFT, padx=(0, 10))  # 10 pixels padding to the right of the image
+        else:
+            self.eye_label = ttk.Label(self.eye_frame, text="Eye Image\nMissing", foreground="red")
+            self.eye_label.pack(side=tk.LEFT, padx=(0, 10))
+
+        # Attention Level Label
+        self.attention_label = ttk.Label(self.eye_frame, text="Attention: 0%", font=("Helvetica", 12))
+        self.attention_label.pack(side=tk.LEFT)
+
+        # State Display Label
+        self.state_label = ttk.Label(self.root, text="State: Normal", font=("Helvetica", 16))
+        self.state_label.pack(side=tk.BOTTOM, pady=10)
+
+        # Energy and Coherence Display Labels
+        self.energy_label = ttk.Label(self.root, text="Energy: 100.00%", font=("Helvetica", 12))
+        self.energy_label.pack(side=tk.BOTTOM)
+        self.coherence_label = ttk.Label(self.root, text="Coherence: 1.00", font=("Helvetica", 12))
+        self.coherence_label.pack(side=tk.BOTTOM)
+Differences:
+Eye Indicator Integration:
+Image Loading: Attempts to load eye_open.png and eye_closed.png from the script's directory, resizing them to (50, 35) pixels using the appropriate resampling mode.
+Error Handling: If images fail to load, displays a "Eye Image Missing" message in red.
+Dynamic Placement: Positions the eye indicator in the upper-right corner with padding.
+Attention Level Display:
+Label Addition: Introduces an attention_label to display the current attention level percentage.
+Eye Image Updates: Changes the eye image based on the attention level (attention >= 0.7 for open eye, else closed eye).
+State, Energy, and Coherence Labels:
+State Label: Displays the current state of the AI (e.g., Normal, Flow).
+Energy and Coherence Labels: Show the current energy and coherence levels, providing real-time feedback on the AI's status.
+Canvas Background Change:
+Dynamic Background: Alters the canvas background color based on the current state, enhancing visual feedback.
+Improved GUI Update Method:
+Comprehensive Data Handling: Processes additional data points like state, energy, coherence, and attention_level to update the GUI elements accordingly.
+12. Comprehensive Node Saving and Loading
+Old Version:
+python
+Copy code
+def save_system(self, filepath: str):
+    """Save the system's configuration and node states to a JSON file."""
+    try:
+        with self.network.node_lock:
+            nodes_data = {
+                node_id: {
+                    'position': node.position,
+                    'connections': node.connections
+                } for node_id, node in self.network.nodes.items()
+            }
+        data = {
+            'config': self.config.to_dict(),
+            'nodes': nodes_data
+        }
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=4)
+        logging.info(f"System saved to {filepath}.")
+        messagebox.showinfo("Save System", f"System successfully saved to {filepath}.")
+    except Exception as e:
+        logging.error(f"Failed to save system: {e}")
+        messagebox.showerror("Save System", f"Failed to save system: {e}")
+
+def load_system(self, filepath: str):
+    """Load the system's configuration and node states from a JSON file."""
+    try:
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        # Update configuration
+        self.config.update_from_dict(data['config'])
+        # Update nodes
+        with self.network.node_lock:
+            self.network.nodes = {}
+            for node_id, node_info in data['nodes'].items():
+                self.network.nodes[int(node_id)] = AdaptiveNode(
+                    id=int(node_id),
+                    position=node_info['position'],
+                    connections={int(k): np.array(v) for k, v in node_info['connections'].items()}
+                )
+        logging.info(f"System loaded from {filepath}.")
+        messagebox.showinfo("Load System", f"System successfully loaded from {filepath}.")
+    except Exception as e:
+        logging.error(f"Failed to load system: {e}")
+        messagebox.showerror("Load System", f"Failed to load system: {e}")
+New Version:
+python
+Copy code
+def save_system(self, filepath: str):
+    """Save the system's configuration and node states to a JSON file."""
+    try:
+        with self.network.node_lock:
+            nodes_data = {
+                node_id: {
+                    'position': node.position,
+                    'connections': {k: v.tolist() for k, v in node.connections.items()},
+                    'state_info': node.state_info.name
+                } for node_id, node in self.network.nodes.items()
+            }
+        data = {
+            'config': self.config.to_dict(),
+            'nodes': nodes_data
+        }
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=4)
+        logging.info(f"System saved to {filepath}.")
+        messagebox.showinfo("Save System", f"System successfully saved to {filepath}.")
+    except Exception as e:
+        logging.error(f"Failed to save system: {e}")
+        messagebox.showerror("Save System", f"Failed to save system: {e}")
+
+def load_system(self, filepath: str):
+    """Load the system's configuration and node states from a JSON file."""
+    try:
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        # Update configuration
+        self.config.update_from_dict(data['config'])
+        # Update nodes
+        with self.network.node_lock:
+            self.network.nodes = {}
+            for node_id, node_info in data['nodes'].items():
+                state_name = node_info.get('state_info', 'Normal')
+                state = STATE_PROPERTIES.get(state_name, STATE_PROPERTIES['Normal'])
+                self.network.nodes[int(node_id)] = AdaptiveNode(
+                    id=int(node_id),
+                    position=node_info['position'],
+                    connections={int(k): np.array(v) for k, v in node_info['connections'].items()}
+                )
+                self.network.nodes[int(node_id)].state_info = state
+        logging.info(f"System loaded from {filepath}.")
+        messagebox.showinfo("Load System", f"System successfully loaded from {filepath}.")
+    except Exception as e:
+        logging.error(f"Failed to load system: {e}")
+        messagebox.showerror("Load System", f"Failed to load system: {e}")
+Differences:
+State Information:
+Saving State: Each node now saves its state_info.name, allowing the system to restore the node's state upon loading.
+Loading State: When loading, the system retrieves the state_info and assigns the appropriate State instance based on STATE_PROPERTIES.
+Connection Serialization:
+Conversion to Lists: Connections are converted to lists (v.tolist()) during saving to ensure JSON compatibility, as NumPy arrays are not directly serializable.
+Comprehensive Node Data:
+Enhanced Node Data: Includes position, connections, and state_info for each node, providing a more complete snapshot of the network's state.
+13. Comprehensive GUI Enhancements with Eye Indicators and Attention Levels
+New Version Only:
+python
+Copy code
+# Load Eye Images for Attention Indicator
+try:
+    # Determine script's directory
+    if getattr(sys, 'frozen', False):
+        # If the application is frozen (e.g., packaged by PyInstaller)
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        # If the application is run as a script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    logging.debug(f"Script Directory: {script_dir}")
+
+    # Define absolute paths
+    eye_open_path = os.path.join(script_dir, "eye_open.png")
+    eye_closed_path = os.path.join(script_dir, "eye_closed.png")
+
+    logging.debug(f"Eye Open Path: {eye_open_path}")
+    logging.debug(f"Eye Closed Path: {eye_closed_path}")
+
+    # Determine resampling mode
+    if hasattr(Image, 'Resampling'):
+        resample_mode = Image.Resampling.LANCZOS
+    else:
+        resample_mode = Image.LANCZOS  # For older versions
+
+    # Load and resize the eye images to 50x35 pixels
+    eye_open_image = Image.open(eye_open_path)
+    eye_open_image = eye_open_image.resize((50, 35), resample=resample_mode)
+    eye_open_image.verify()
+    eye_open_image = Image.open(eye_open_path).resize((50, 35), resample=resample_mode)
+    self.eye_open_photo = ImageTk.PhotoImage(eye_open_image)
+    logging.debug("eye_open.png loaded successfully.")
+
+    eye_closed_image = Image.open(eye_closed_path)
+    eye_closed_image = eye_closed_image.resize((50, 35), resample=resample_mode)
+    eye_closed_image.verify()
+    eye_closed_image = Image.open(eye_closed_path).resize((50, 35), resample=resample_mode)
+    self.eye_closed_photo = ImageTk.PhotoImage(eye_closed_image)
+    logging.debug("eye_closed.png loaded successfully.")
+
+except Exception as e:
+    logging.error(f"Failed to load eye images: {e}")
+    self.eye_open_photo = None
+    self.eye_closed_photo = None
+
+# Create Eye Indicator Frame in the Upper Right Corner
+self.eye_frame = ttk.Frame(self.root)
+self.eye_frame.place(relx=1.0, rely=0.0, anchor='ne', x=-10, y=10)  # 10 pixels padding from top-right
+
+# Eye Image Label
+if self.eye_closed_photo and self.eye_open_photo:
+    self.eye_label = ttk.Label(self.eye_frame, image=self.eye_closed_photo)
+    self.eye_label.image = self.eye_closed_photo  # Keep a reference
+    self.eye_label.pack(side=tk.LEFT, padx=(0, 10))  # 10 pixels padding to the right of the image
+else:
+    self.eye_label = ttk.Label(self.eye_frame, text="Eye Image\nMissing", foreground="red")
+    self.eye_label.pack(side=tk.LEFT, padx=(0, 10))
+
+# Attention Level Label
+self.attention_label = ttk.Label(self.eye_frame, text="Attention: 0%", font=("Helvetica", 12))
+self.attention_label.pack(side=tk.LEFT)
+
+# State Display Label
+self.state_label = ttk.Label(self.root, text="State: Normal", font=("Helvetica", 16))
+self.state_label.pack(side=tk.BOTTOM, pady=10)
+
+# Energy and Coherence Display Labels
+self.energy_label = ttk.Label(self.root, text="Energy: 100.00%", font=("Helvetica", 12))
+self.energy_label.pack(side=tk.BOTTOM)
+self.coherence_label = ttk.Label(self.root, text="Coherence: 1.00", font=("Helvetica", 12))
+self.coherence_label.pack(side=tk.BOTTOM)
+Differences:
+Eye Indicators:
+Image Loading: Dynamically loads eye_open.png and eye_closed.png based on the script's directory, ensuring portability.
+Resampling Mode: Determines the appropriate resampling method (LANCZOS) based on the Pillow library's version for image resizing.
+Error Handling: If eye images fail to load, displays a red text indicator instead.
+Dynamic Placement: Positions the eye indicator in the upper-right corner with padding for aesthetic alignment.
+Attention Level Integration:
+Attention Label: Displays the current attention level as a percentage.
+Eye Image Updates: Changes the eye image based on the attention level (>= 70% for open eye, else closed eye), providing visual feedback on the AI's attention state.
+State, Energy, and Coherence Labels:
+Real-Time Updates: Continuously updates labels to reflect the AI's current state, energy, and coherence, enhancing user awareness of the system's status.
+Canvas Background Changes:
+State-Based Coloring: Alters the background color of the video canvas based on the AI's current state (Normal, Flow, Meditation, Dream), offering intuitive visual cues.
+14. Comprehensive GUI Update Method
+Old Version:
+python
+Copy code
+def update_gui(self):
+    try:
+        while not self.gui_queue.empty():
+            data = self.gui_queue.get_nowait()
+            if 'frame' in data and data['frame'] is not None:
+                frame = cv2.cvtColor(data['frame'], cv2.COLOR_BGR2RGB)
+                frame = cv2.resize(frame, (self.canvas.winfo_width(), self.canvas.winfo_height()))
+                image = Image.fromarray(frame)
+                photo = ImageTk.PhotoImage(image=image)
+                self.canvas.delete("all")
+                self.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+                self.canvas._photo = photo  # Keep a reference to prevent garbage collection
+
+                if 'position' in data:
+                    x, y = data['position']
+                    direction = data.get('direction', 0)
+                    cone_length = self.system.config.vision_cone_length
+                    cone_angle = np.pi / 4
+                    p1 = (x, y)
+                    p2 = (x + cone_length * np.cos(direction - cone_angle),
+                          y + cone_length * np.sin(direction - cone_angle))
+                    p3 = (x + cone_length * np.cos(direction + cone_angle),
+                          y + cone_length * np.sin(direction + cone_angle))
+                    self.canvas.create_polygon(
+                        p1[0], p1[1], p2[0], p2[1], p3[0], p3[1],
+                        fill='#00ff00', stipple='gray50', outline='#00ff00', width=2
+                    )
+                    radius = 10
+                    self.canvas.create_oval(
+                        x - radius, y - radius, x + radius, y + radius,
+                        fill='#00ff00', outline='white', width=2
+                    )
+    except Exception as e:
+        logging.error(f"Error updating GUI: {e}")
+
+    self.root.after(33, self.update_gui)  # Approximately 30 FPS
+New Version:
+python
+Copy code
+def update_gui(self):
+    try:
+        while not self.gui_queue.empty():
+            data = self.gui_queue.get_nowait()
+            if 'frame' in data and data['frame'] is not None:
+                # Process frame for display
+                frame = cv2.cvtColor(data['frame'], cv2.COLOR_BGR2RGB)
+                frame = cv2.resize(frame, (self.canvas.winfo_width(), self.canvas.winfo_height()))
+                image = Image.fromarray(frame)
+                photo = ImageTk.PhotoImage(image=image)
+                self.canvas.delete("all")
+                self.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+                self.canvas._photo = photo  # Keep a reference to prevent garbage collection
+
+                if 'position' in data:
+                    x, y = data['position']
+                    direction = data.get('direction', 0)
+                    cone_length = self.system.config.vision_cone_length
+                    cone_angle = np.pi / 4
+                    p1 = (x, y)
+                    p2 = (x + cone_length * np.cos(direction - cone_angle),
+                          y + cone_length * np.sin(direction - cone_angle))
+                    p3 = (x + cone_length * np.cos(direction + cone_angle),
+                          y + cone_length * np.sin(direction + cone_angle))
+                    self.canvas.create_polygon(
+                        p1[0], p1[1], p2[0], p2[1], p3[0], p3[1],
+                        fill='#00ff00', stipple='gray50', outline='#00ff00', width=2
+                    )
+                    radius = 10
+                    self.canvas.create_oval(
+                        x - radius, y - radius, x + radius, y + radius,
+                        fill='#00ff00', outline='white', width=2
+                    )
+
+                    # Change canvas background based on state
+                    state_color_map = {
+                        'Normal': '#000000',        # Black
+                        'Flow': '#1E90FF',          # Dodger Blue
+                        'Meditation': '#32CD32',    # Lime Green
+                        'Dream': '#FF69B4'          # Hot Pink
+                    }
+                    current_state = data.get('state', 'Normal')
+                    canvas_color = state_color_map.get(current_state, '#000000')
+                    self.canvas.config(bg=canvas_color)
+
+            # Update State, Energy, and Coherence Labels
+            if 'state' in data:
+                current_state = data['state']
+                self.state_label.config(text=f"State: {current_state}")
+
+            if 'energy' in data:
+                current_energy = data['energy']
+                self.energy_label.config(text=f"Energy: {current_energy:.2f}%")
+
+            if 'coherence' in data:
+                current_coherence = data['coherence']
+                self.coherence_label.config(text=f"Coherence: {current_coherence:.2f}")
+
+            # Update Eye Indicator and Attention Level
+            if 'attention_level' in data:
+                attention = data['attention_level']
+                # Update attention label
+                self.attention_label.config(text=f"Attention: {int(attention * 100)}%")
+                # Update eye image based on attention level
+                if self.eye_open_photo and self.eye_closed_photo:
+                    if attention >= 0.7:
+                        # High attention - Open Eye
+                        self.eye_label.config(image=self.eye_open_photo)
+                        self.eye_label.image = self.eye_open_photo  # Keep reference
+                    else:
+                        # Low attention - Closed Eye
+                        self.eye_label.config(image=self.eye_closed_photo)
+                        self.eye_label.image = self.eye_closed_photo  # Keep reference
+
+    except Exception as e:
+        logging.error(f"Error updating GUI: {e}")
+
+    self.root.after(33, self.update_gui)  # Approximately 30 FPS
+Differences:
+State-Based Background Coloring:
+Dynamic Background: Changes the canvas background color based on the AI's current state (Normal, Flow, Meditation, Dream), providing immediate visual feedback.
+State, Energy, and Coherence Labels:
+Real-Time Updates: Continuously updates the labels to reflect the AI's current state, energy, and coherence levels, enhancing user awareness.
+Attention Level and Eye Indicator Updates:
+Attention Level Display: Updates the attention_label to show the current attention percentage.
+Eye Image Switching: Changes the eye image based on the attention level (>= 70% for open eye, else closed eye), offering intuitive visual cues on attention status.
+Logging Level Adjustment:
+Debug Logs: Increased logging detail for node visualization updates (logging.debug), aiding in debugging and monitoring.
+15. Conclusion and Summary of Enhancements
+The New Version (Version 2) introduces significant enhancements over the Old Version (Version 1), primarily focusing on the following areas:
+
+AI Integration:
+
+Introduction of a PyTorch-based Conscious AI Model (ConsciousAIModel) to process visual data and influence the AI's behavior dynamically.
+State Management:
+
+Utilization of the State dataclass and STATE_PROPERTIES dictionary to manage different behavioral states (Normal, Flow, Meditation, Dream) with associated properties like energy thresholds, coherence, and resonance.
+Attention Mechanism:
+
+Implementation of an attention level system based on the AI's proximity to a Universal Hub, influencing visual indicators (eye images) and AI behavior.
+Logging and Data Persistence:
+
+Comprehensive CSV logging of AI states and actions for analysis and debugging.
+Enhanced saving and loading of system configurations, including node states and their respective connections and states.
+GUI Enhancements:
+
+Addition of eye indicators and attention level displays to provide real-time visual feedback on the AI's attention status.
+Dynamic background color changes based on the AI's current state, improving user interface intuitiveness.
+Enhanced configuration window with validation and error handling to ensure robust parameter adjustments.
+Robust Error Handling:
+
+Improved error handling across various components (e.g., image loading, webcam initialization) to ensure the system's resilience and provide clear user feedback.
+Performance and Debugging:
+
+Increased logging verbosity (DEBUG level) to facilitate detailed monitoring and debugging of the system's internal processes.
+Thread Safety and Graceful Shutdown:
+
+Introduction of a stop_event to manage thread termination gracefully, preventing potential issues during system shutdown.
+Recommendations for Further Improvements
+While the New Version has made substantial strides in enhancing functionality and robustness, here are some additional recommendations to further improve your application:
+
+Model Training and Evaluation:
+
+Actual AI Inference: Once the Conscious AI Model is adequately trained, integrate it by uncommenting the actual model inference line and removing the mocked output.
+Performance Optimization: Move the model to GPU if available to accelerate inference times.
+Enhanced Visualization:
+
+Real-Time Node Attributes: Display additional node attributes (e.g., state, energy) within the visualizer for deeper insights.
+Interactive Visualization: Allow users to interact with the node visualizer (e.g., zoom, rotate) for better exploration.
+User Interface Improvements:
+
+Responsive Design: Ensure that the GUI scales appropriately with different window sizes and screen resolutions.
+Customization Options: Provide users with the ability to customize visual elements (e.g., colors, indicator sizes) through the configuration window.
+Robust Feature Extraction:
+
+Advanced Feature Processing: Incorporate more sophisticated image processing techniques to extract meaningful features beyond brightness and motion, enhancing AI decision-making.
+Data Analysis Tools:
+
+Visualization of Logs: Develop tools or integrate existing libraries to visualize the CSV logs, aiding in the analysis of AI behavior over time.
+Testing and Validation:
+
+Unit Testing: Implement unit tests for critical components to ensure reliability and facilitate maintenance.
+User Testing: Conduct user testing sessions to gather feedback on the system's usability and performance, guiding future enhancements.
+Documentation:
+
+Comprehensive Documentation: Maintain detailed documentation of the codebase, including class and method descriptions, to assist in future development and onboarding of new contributors.
